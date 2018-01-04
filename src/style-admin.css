@@ -1,0 +1,14 @@
+.gfjeeb_recurring_complex .gf_hidden {
+	display: none;
+}
+
+.no-js #gfjeeb-opt-admin-stored-beagle,
+.no-js #gfjeeb-opt-admin-stored-test {
+	display: none;
+}
+
+#gfjeeb-opt-admin-stored-beagle,
+#gfjeeb-opt-admin-stored-test {
+	color: #c00;
+	font-weight: bold;
+}
