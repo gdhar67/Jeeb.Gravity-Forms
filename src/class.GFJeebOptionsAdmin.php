@@ -7,9 +7,19 @@
 class GFJeebOptionsForm
 {
 
-    public $jeebSignature = '';
-    public $jeebRedirectURL      = '';
+    public $jeebSignature    = '';
+    public $jeebRedirectURL  = '';
     public $jeebNetwork      = '';
+    // public $jeebBase         = '';
+    // public $jeebLang         = '';
+    // public $jeebBase         = '';
+    // public $jeebBtc          = '';
+    // public $jeebXmr          = '';
+    // public $jeebXrp          = '';
+    // public $jeebBch          = '';
+    // public $jeebLtc          = '';
+    // public $jeebEth          = '';
+    // public $jeebTestBtc      = '';
 
     /**
      * initialise from form post, if posted
@@ -17,9 +27,18 @@ class GFJeebOptionsForm
     public function __construct()
     {
         if (self::isFormPost()) {
-            $this->jeebSignature = self::getPostValue('jeebSignature');
-            $this->jeebRedirectURL      = self::getPostValue('jeebRedirectURL');
+            $this->jeebSignature    = self::getPostValue('jeebSignature');
+            $this->jeebRedirectURL  = self::getPostValue('jeebRedirectURL');
             $this->jeebNetwork      = self::getPostValue('jeebNetwork');
+            $this->jeebBase         = self::getPostValue('jeebBase');
+            $this->jeebBtc          = self::getPostValue('jeebBtc');
+            $this->jeebXmr          = self::getPostValue('jeebXmr');
+            $this->jeebXrp          = self::getPostValue('jeebXrp');
+            $this->jeebBch          = self::getPostValue('jeebBch');
+            $this->jeebLtc          = self::getPostValue('jeebLtc');
+            $this->jeebEth          = self::getPostValue('jeebEth');
+            $this->jeebTestBtc      = self::getPostValue('jeebTestBtc');
+            $this->jeebLang         = self::getPostValue('jeebLang');
         }
     }
 
@@ -67,6 +86,10 @@ class GFJeebOptionsForm
 
         if (false === isset($this->jeebSignature) || strlen($this->jeebSignature) <= 0) {
             $errmsg .= "# Please enter your Signature.<br/>\n";
+        }
+
+        if (false === isset($this->jeebBase) || strlen($this->jeebBase) <= 0) {
+            $errmsg .= "# Please select a base currency.<br/>\n";
         }
 
         return $errmsg;
@@ -118,6 +141,16 @@ class GFJeebOptionsAdmin
                 update_option('jeebSignature', $this->frm->jeebSignature);
                 update_option('jeebRedirectURL', $this->frm->jeebRedirectURL);
                 update_option('jeebNetwork', $this->frm->jeebNetwork);
+                update_option('jeebBase', $this->frm->jeebBase);
+                update_option('jeebLang', $this->frm->jeebLang);
+                update_option('jeebBtc', $this->frm->jeebBtc);
+                update_option('jeebXmr', $this->frm->jeebXmr);
+                update_option('jeebXrp', $this->frm->jeebXrp);
+                update_option('jeebLtc', $this->frm->jeebLtc);
+                update_option('jeebEth', $this->frm->jeebEth);
+                update_option('jeebBch', $this->frm->jeebBch);
+                update_option('jeebTestBtc', $this->frm->jeebTestBtc);
+
 
                 $this->plugin->showMessage(__('Options saved.'));
             } else {
@@ -125,9 +158,18 @@ class GFJeebOptionsAdmin
             }
         } else {
             // initialise form from stored options
-            $this->frm->jeebNetwork = get_option('jeebNetwork');
+            $this->frm->jeebNetwork     = get_option('jeebNetwork');
             $this->frm->jeebRedirectURL = get_option('jeebRedirectURL');
-            $this->frm->jeebSignature = get_option('jeebSignature');
+            $this->frm->jeebSignature   = get_option('jeebSignature');
+            $this->frm->jeebBase        = get_option('jeebBase');
+            $this->frm->jeebLang        = get_option('jeebLang');
+            $this->frm->jeebBtc         = get_option('jeebBtc');
+            $this->frm->jeebXmr         = get_option('jeebXmr');
+            $this->frm->jeebXrp         = get_option('jeebXrp');
+            $this->frm->jeebLtc         = get_option('jeebLtc');
+            $this->frm->jeebEth         = get_option('jeebEth');
+            $this->frm->jeebBch         = get_option('jeebBch');
+            $this->frm->jeebTestBtc     = get_option('jeebTestBtc');
         }
 
         require GFJEEB_PLUGIN_ROOT . 'views/admin-settings.php';

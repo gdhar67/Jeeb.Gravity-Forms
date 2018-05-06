@@ -429,15 +429,7 @@ function jeeb_callback()
             error_log("Buyer Email : ".$row[0]['buyer_email']);
             $buyer_email = $row[0]['buyer_email'];
 
-            // Call Jeeb
-            if (get_option("jeebNetwork") == "Testnet")
-            {
-                $network_uri = "http://test.jeeb.io:9876/";
-            }
-            else
-            {
-                $network_uri = "https://jeeb.io/";
-            }
+            $network_uri = "https://core.jeeb.io/api/" ;
 
 
             error_log("Entered Jeeb-Notification");
@@ -449,17 +441,6 @@ function jeeb_callback()
               error_log('Order Id received = '.$json['orderNo'].' stateId = '.$json['stateId']);
               error_log('Object : '.print_r($json, true));
 
-              // add_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-              //
-              // $message  = 'Thank you! Your payment has been received, but the transaction has not been confirmed on the bitcoin network. You will receive another email when the transaction has been confirmed.'.
-              // '<br>Order Id:'.$json['orderNo'].
-              // '<br>Invoice Amount:'.$json['requestAmount'];
-              //
-              // if (wp_mail($buyer_email, 'Payment Received', $message)) {
-              //   error_log("Successfully sent the Email to the customer.");
-              // }
-              //
-              // remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
             }
             else if ( $json['stateId']== 4 ) {
               error_log('Order Id received = '.$json['orderNo'].' stateId = '.$json['stateId']);
@@ -469,7 +450,7 @@ function jeeb_callback()
 
               $data_string = json_encode($data);
               $api_key = get_option("jeebSignature");
-              $url = $network_uri.'api/bitcoin/confirm/'.$api_key;
+              $url = $network_uri.'payments/' . $api_key . '/confirm';
               error_log("Signature:".$api_key." Base-Url:".$network_uri." Url:".$url);
 
               $ch = curl_init($url);
@@ -489,14 +470,6 @@ function jeeb_callback()
               if($data['result']['isConfirmed']){
                 error_log('Payment confirmed by jeeb');
 
-                add_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-                $message  = jeeb_confimation_template($data['result']);
-
-                if (wp_mail($buyer_email, 'Payment Confirmed', $message)) {
-                  error_log("Successfully sent the Email to the customer.");
-                }
-
-                remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
               }
               else {
                 error_log('Payment confirmation rejected by jeeb');
@@ -505,46 +478,14 @@ function jeeb_callback()
             else if ( $json['stateId']== 5 ) {
               error_log('Order Id received = '.$json['orderNo'].' stateId = '.$json['stateId']);
 
-              // add_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-              // $message  = 'Invoice was expired and the transaction failed.'.
-              // '<br>Order Id:'.$json['orderNo'].
-              // '<br>Invoice Amount:'.$json['requestAmount'];
-              //
-              // if (wp_mail($buyer_email, 'Invoice Expired', $message)) {
-              //   error_log("Successfully sent the Email to the customer.");
-              // }
-              //
-              // remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-
             }
             else if ( $json['stateId']== 6 ) {
               error_log('Order Id received = '.$json['orderNo'].' stateId = '.$json['stateId']);
-
-              // add_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-              // $message  = 'Invoice was over paid and the transaction was rejected by Jeeb'.
-              // '<br>Order Id:'.$json['orderNo'].
-              // '<br>Invoice Amount:'.$json['requestAmount'];
-              //
-              // if (wp_mail($buyer_email, 'Invoice Over Paid', $message)) {
-              //   error_log("Successfully sent the Email to the customer.");
-              // }
-              //
-              // remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
 
             }
             else if ( $json['stateId']== 7 ) {
               error_log('Order Id received = '.$json['orderNo'].' stateId = '.$json['stateId']);
 
-              // add_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-              // $message  = 'Invoice was partially paid and the transaction was rejected by Jeeb, Please try again.'.
-              // '<br>Order Id:'.$json['orderNo'].
-              // '<br>Invoice Amount:'.$json['requestAmount'];
-              //
-              // if (wp_mail($buyer_email, 'Invoice Under Paid', $message)) {
-              //   error_log("Successfully sent the Email to the customer.");
-              // }
-              //
-              // remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
             }
             else{
               error_log('Cannot read state id sent by Jeeb');
@@ -561,325 +502,6 @@ function jeeb_callback()
 
 function wpdocs_set_html_mail_content_type() {
     return 'text/html';
-}
-
-function jeeb_confimation_template($data){
-  $finalTime = date ('Y-m-d H:i:s',strtotime($data['finalizedTime']));
-  $html = "<html dir=rtl lang=fa-IR>
-
-<head>
-    <title>رسید تراکنش موفق</title>
-    <meta charset=\"utf-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />
-    <style type=\"text/css\">
-        /* CLIENT-SPECIFIC STYLES */
-        body, table, td, a {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
-        /* Prevent WebKit and Windows mobile changing default text sizes */
-        table, td {
-            mso-table-lspace: 0pt;
-            mso-table-rspace: 0pt;
-        }
-        /* Remove spacing between tables in Outlook 2007 and up */
-        img {
-            -ms-interpolation-mode: bicubic;
-        }
-        /* Allow smoother rendering of resized image in Internet Explorer */
-
-        /* RESET STYLES */
-        img {
-            border: 0;
-            height: auto;
-            line-height: 100%;
-            outline: none;
-            text-decoration: none;
-        }
-
-        table {
-            border-collapse: collapse !important;
-        }
-
-        body {
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-        }
-
-        /* iOS BLUE LINKS */
-        a[x-apple-data-detectors] {
-            color: inherit !important;
-            text-decoration: none !important;
-            font-size: inherit !important;
-            font-family: inherit !important;
-            font-weight: inherit !important;
-            line-height: inherit !important;
-        }
-
-        /* MOBILE STYLES */
-        @media screen and (max-width: 525px) {
-
-            /* ALLOWS FOR FLUID TABLES */
-            .wrapper {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-
-            /* ADJUSTS LAYOUT OF LOGO IMAGE */
-            .logo img {
-                margin: 0 auto !important;
-            }
-
-            /* USE THESE CLASSES TO HIDE CONTENT ON MOBILE */
-            .mobile-hide {
-                display: none !important;
-            }
-
-            .img-max {
-                max-width: 100% !important;
-                width: 100% !important;
-                height: auto !important;
-            }
-
-            /* FULL-WIDTH TABLES */
-            .responsive-table {
-                width: 100% !important;
-            }
-
-            /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
-            .padding {
-                padding: 10px 5% 15px 5% !important;
-            }
-
-            .padding-meta {
-                padding: 30px 5% 0px 5% !important;
-                text-align: center;
-            }
-
-            .padding-copy {
-                padding: 10px 5% 10px 5% !important;
-                text-align: center;
-            }
-
-            .no-padding {
-                padding: 0 !important;
-            }
-
-            .section-padding {
-                padding: 50px 15px 50px 15px !important;
-            }
-
-            /* ADJUST BUTTONS ON MOBILE */
-            .mobile-button-container {
-                margin: 0 auto;
-                width: 100% !important;
-            }
-
-            .mobile-button {
-                border: 0 !important;
-                font-size: 16px !important;
-                display: block !important;
-            }
-        }
-
-        /* ANDROID CENTER FIX */
-        div[style*=\"margin: 16px 0;\"] {
-            margin: 0 !important;
-        }
-    </style>
-</head>
-
-<body>
-<div>
-<table class=\"m_-5854262889076256333marginFix\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"font-family:Iransans, tahoma,'sans serif'; letter-spacing:normal; text-indent:0px; text-transform:none; word-spacing:0px; background-color:rgb(242,242,242)\">
-<tbody>
-<tr>
-<td class=\"m_-5854262889076256333mobMargin\" bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:0px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-    &nbsp;
-</td>
-<td class=\"m_-5854262889076256333mobContent\" bgcolor=\"#ffffff\" align=\"center\" width=\"660\" style=\"font-family:Iransans, tahoma,'sans serif';font-size:16px;line-height:22px;color:rgb(51,51,51);font-weight:normal;\">
-    <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-        <tbody>
-        <tr>
-            <td valign=\"top\" align=\"center\" width=\"600\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-                    <tbody>
-                    <tr class=\"m_-5854262889076256333no_mobile_phone\">
-                        <td bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal; padding-top:10px\"></td>
-                    </tr>
-                    <tr>
-                        <td bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal; padding-top:10px\"></td>
-                    </tr>
-                    <tr>
-                        <td valign=\"top\" bgcolor=\"#ffffff\" align=\"center\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                            <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom:10px\">
-                                <tbody dir=\"rtl\">
-                                <tr valign=\"bottom\">
-                                    <td valign=\"top\" align=\"center\" width=\"20\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                                        &nbsp;
-                                    </td>
-                                    <td align=\"right\" style=\"font-family:Iransans, tahoma,'sans serif';font-size: 11px;line-height:22px;color:rgb(51,51,51);font-weight:100;float: right;margin-top: 10px;display: inline-block;\">
-                                        <span dir=\"rtl\" style=\"padding-top: 15px; padding-bottom: 10px; color: rgb(117, 117, 117); line-height: 15px\">
-                                            زمان تکمیل تراکنش:
-                                            <span style=\"display: inline\">".$finalTime."<span class=\"m_-5854262889076256333Apple-converted-space\">&nbsp;</span></span><span dir=\"rtl\" style=\"display: block; margin-top: -3px;\">
-                                                <span style=\"display: inline\">
-                                                    <br><span style=\"font-size: 11px;\">
-                                                        کد پیگیری:
-                                                    </span><span class=\"m_-5854262889076256333Apple-converted-space\">&nbsp;</span><a target=\"_blank\" style=\"color: rgb(0, 156, 222); font-weight: 100; text-decoration: none; font-family: Iransans, tahoma, 'sans serif'; font-size: 10px;\">".$data['referenceNo']."&nbsp;</a>
-                                                </span>
-                                            </span>
-                                        </span>
-                                    </td>
-
-                                    <td align=\"left\" height=\"64\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal;float: left;margin-top: 10px\">
-                                        <img src=\"https://jeeb.io/img/email-logo-n.png\" alt=\"Jeeb\" border=\"0\" width=\"120\" style=\"width: 100px;user-select: none;\">
-                                    </td>
-
-
-                                    <td valign=\"top\" align=\"center\" width=\"20\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                                        &nbsp;
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"padding-bottom:10px; padding-top:10px; margin-bottom:20px\">
-                                <tbody>
-                                <tr valign=\"bottom\">
-                                    <td valign=\"top\" align=\"center\" width=\"20\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                                        &nbsp;
-                                    </td>
-                                    <td class=\"m_-5854262889076256333ppsans\" dir=\"rtl\" valign=\"top\" style=\"font-family:pp-sans-big-light,'Noto Sans',Iransans, tahoma,'sans serif'!important; font-size:15px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                                        <div style=\"margin-top:30px; font-family:Iransans, tahoma,helvetica,sans-serif; font-size:12px; color:rgb(51,51,51)!important\">
-                                            <span style=\"font-weight:100; font-family:Iransans, tahoma,helvetica,sans-serif; color:rgb(51,51,51)!important\">کاربر عزیز،</span>
-                                            <br>
-                                            <table>
-                                                <tbody>
-                                                <tr>
-                                                    <td valign=\"top\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:12px; line-height:22px; color:rgb(51,51,51); font-weight:normal\">
-                                                        <span style=\"font-size: 12px;font-weight:100;text-decoration:none;\">تراکنش با مشخصات ذیل با موفقیت نهایی سازی شد.</span>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                            <br>
-
-
-                                            <div style=\"margin-top:5px\">
-                                                <span style=\"display:inline\"></span>
-
-                                                <div></div>
-                                                <table class=\"m_-5854262889076256333CartTable\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\" border=\"0\" width=\"100%\" style=\"clear:both;font-family:Iransans, tahoma,helvetica,sans-serif;font-size:11px;margin-top:20px;color:rgb(102,102,102)!important;\">
-                                                    <tbody>
-                                                    <tr style=\"height: 30px;\">
-                                                        <td width=\"30%\" style=\"font-family:Iransans, tahoma,'sans serif';font-size: 11px;color:#555!important;font-weight:normal;border-top-width:1px;border-bottom-width:1px;border-style:solid none;border-top-color:#cccccc;border-bottom-color:#cccccc;padding:5px 10px!important;\">شماره سفارش</td>
-                                                        <td align=\"right\" width=\"25%\" style=\"font-family:Iransans, tahoma,'sans serif';font-size: 11px;color:#555!important;font-weight:normal;border-top-width:1px;border-bottom-width:1px;border-style:solid none;border-top-color:#cccccc;border-bottom-color:#cccccc;padding:5px 10px!important;\">کد پیگیری</td>
-
-                                                        <td align=\"right\" width=\"20%\" style=\"font-family:Iransans, tahoma,'sans serif';font-size: 11px;color:#555!important;font-weight:normal;border-top-width:1px;border-bottom-width:1px;border-style:solid none;border-top-color:#cccccc;border-bottom-color:#cccccc;padding:5px 10px!important;\">مبلغ واریزی</td>
-                                                    </tr>
-                                                    <tr width=\"40%\">
-                                                        <td align=\"right\" width=\"20%\" dir=\"ltr\" style=\"font-family:Iransans, tahoma,'sans serif';font-size:12px;color:rgb(51,51,51);font-weight:normal;border-bottom-width:1px;border-bottom-color: #cccccc;padding:10px;\">
-                                                            ".$data['orderNo']."
-                                                        </td>
-                            <td align=\"right\" width=\"20%\" dir=\"ltr\" style=\"font-family:Iransans, tahoma,'sans serif';font-size:12px;color:rgb(51,51,51);font-weight:normal;border-bottom-width:1px;border-bottom-color: #cccccc;padding:10px;\">
-                                                            ".$data['referenceNo']."
-                                                        </td>
-                                                        <td align=\"right\" width=\"20%\" dir=\"ltr\" style=\"font-family:Iransans, tahoma,'sans serif';font-size:12px;color:rgb(51,51,51);font-weight:normal;border-bottom-width:1px;border-bottom-color: #cccccc;padding:10px;\">
-                                                            ".$data['value']." BTC
-                                                        </td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-
-                                                <br>
-
-
-                                                <br>
-                                            </div>
-                                            <span style=\"font-weight:bold; color:rgb(68,68,68)\"></span>
-                                            <span></span>
-                                        </div>
-                                    </td>
-                                    <td valign=\"top\" align=\"center\" width=\"20\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px;  color:rgb(51,51,51); font-weight:normal\">
-                                        &nbsp;
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-        <tbody>
-        <tr>
-            <td valign=\"top\" align=\"center\" width=\"600\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px;  color:rgb(51,51,51); font-weight:normal\">
-                <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-                    <tbody>
-                    <tr>
-                        <td bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px;  color:rgb(51,51,51); font-weight:normal; padding-top:20px\"></td>
-                    </tr>
-                    <tr>
-                        <td valign=\"top\" bgcolor=\"#f2f2f2\" align=\"center\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px;  color:rgb(51,51,51); font-weight:normal\">
-
-                            <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-                                <tbody>
-                                <tr valign=\"bottom\">
-
-                                    <td style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px;  color:rgb(51,51,51); font-weight:normal\">
-                                        <span style=\"font-family:Iransans, tahoma,'sans serif'; font-size:13px\">
-                                            <table id=\"m_-5854262889076256333emailFooter\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"padding-top:20px;font-style:normal;font-weight:normal;font-size: 11px;line-height:19px;text-align: center;font-family:Iransans, tahoma,Verdana,Helvetica,sans-serif;color:rgb(41,41,41);\">
-                                                <tbody>
-                                                <tr>
-                                                    <td dir=\"rtl\" style=\"font-family:Iransans, tahoma,'sans serif';color: rgb(123, 123, 123);font-weight: 100;padding:0px 20px\">
-                                                        <p> خواهشمندیم جهت هرگونه پرسش یا پیشنهاد با تیم پشتیبانی، تماس حاصل فرمایید .<br /> بسیار خرسند خواهیم شد تا با تجربیات \"جیب\" شما را راهنمایی کنیم.</p>
-                                                        <p style=\"color: #d2d2d2;\"><a href=\"https://jeeb.io/documentation\" style=\"text-decoration:none;color: #2170c2;\" target=\"_blank\">مستندات</a> |      <a href=\"https://jeeb.io/rules\" style=\"text-decoration:none;color: #2170c2;\" target=\"_blank\">قوانین سایت</a> | <a href=\"https://jeeb.io/faq\" style=\"text-decoration:none;color: #2170c2;\" target=\"_blank\">سوالات متداول</a> | <a href=\"https://jeeb.io/contactus\" style=\"text-decoration:none;color: #2170c2;\" target=\"_blank\">تماس با ما</a> </p>
-                                                        <p>تمامی حقوق معنوی برای ™Jeeb محفوظ است.</p>
-
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </span>
-                                    </td>
-
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</td>
-<td class=\"m_-5854262889076256333mobMargin\" bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:0px;  color:rgb(51,51,51); font-weight:normal\">
-    &nbsp;
-</td>
-</tr>
-<tr>
-    <td bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal; padding-top:10px\"></td>
-</tr>
-<tr>
-    <td bgcolor=\"#f2f2f2\" style=\"font-family:Iransans, tahoma,'sans serif'; font-size:16px; line-height:22px; color:rgb(51,51,51); font-weight:normal; padding-top:10px\"></td>
-</tr>
-</tbody>
-</table>
-</div>
-
-</body>
-
-</html>";
-
-return $html;
 }
 
 add_action('init', 'jeeb_callback');
