@@ -120,6 +120,11 @@ class GFJeebPayment
               error_log("target cur = ". get_option("jeeb".$p));
             }
 
+            if($baseCur=='toman'){
+              $baseCur='irr';
+              $order_total *= 10;
+            }
+
             error_log($this->uid." ".$baseUri." ".$signature." ".$callBack." ".$notification." ". $baseCur);
             error_log("target cur = ". $target_cur);
 
