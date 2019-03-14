@@ -31,10 +31,11 @@
 			</td>
 		</tr>
 		<?php
-		$btcb = $eeur = $usd = $irr = "";
+		$btcb = $eeur = $usd = $irr = $toman = "";
 		$this->frm->jeebBase == "btc" ? $btcb = "selected" : $btcb = "";
 		$this->frm->jeebBase == "eur" ? $eur = "selected" : $eur = "";
 		$this->frm->jeebBase == "irr" ? $irr = "selected" : $irr = "";
+		$this->frm->jeebBase == "toman" ? $toman = "selected" : $toman = "";
 		$this->frm->jeebBase == "usd" ? $usd = "selected" : $usd = "";
 		?>
 		<tr valign="top">
@@ -44,6 +45,7 @@
 					<option value="btc" <?php echo $btcb; ?>>BTC</option>
 					<option value="eur" <?php echo $eur; ?>>EUR</option>
 					<option value="irr" <?php echo $irr; ?>>IRR</option>
+					<option value="toman" <?php echo $toman; ?>>TOMAN</option>
 					<option value="usd" <?php echo $usd; ?>>USD</option>
 				</select>
 				<p><font size='2'>Select the base-currency</font></p>
